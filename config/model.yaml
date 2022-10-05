@@ -1,0 +1,45 @@
+num_classes : 20
+model_type :
+    backbone: 'resnet50' #one of 'resnet50', 
+    neck: 'fpn_silu'
+    head: 'centernet'
+    
+# backbones = {'resnet50': ResNet50, 'effb0': EffB0, 'cspdarknet53': CSPDarknet53, 'yolov7tiny':Yolov7tiny}
+# necks = {'spp':SPP, 'fpn':FPN, 'fpn_silu':FPN_silu, 'pan':PAN, 'v7neck':yolov7_neck}
+# heads = {'v6head': yolov6_head, 'centernet': centernet_head}
+# model_type is one of ['resnet50_spp_pan_v6head', 'cspdarknet_spp_fpn_v6head', 'resnet50_spp_fpnsilu_v6head', 'cspdarknet_spp_fpn_v6head']
+input_size : 512
+max_objects : 100
+epochs: 100
+batch_size: 3
+pretrained_weights: ''
+resume: False
+
+optimizer :
+    type : 'adam'
+    base_lr : 0.001 #1e-3
+    end_lr : 0.00001 #1e-5
+
+aug_option: 
+    brightness : 0.0 #factor
+    contrast : 0.0 #factor
+    rotate: 0.0 #degrees, i.e 10*
+    translate_x: 0.0 #pixel i.e 50
+    translate_y: 0.0 #pixel i.e 50
+    shear: 0.0 #degress, i.e 10*
+    fliph: 0.0 #probality of applying 
+    flipv: 0.0 #probality of applying 
+    mosaic: 0.0
+    mixup: 0.0
+    
+#   From yolov6    
+#     degrees=0.0,
+#     translate=0.1,
+#     scale=0.5,
+#     shear=0.0,
+#     flipud=0.0,
+#     fliplr=0.5,
+#     mosaic=1.0,
+#     mixup=0.0,
+
+    
