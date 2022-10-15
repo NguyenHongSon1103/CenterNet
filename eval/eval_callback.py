@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/data/sonnh/E2EObjectDetection/Centernet')
+sys.path.append('/data/sonnh8/Polyps/CenterNet')
 import cv2
 import numpy as np
 from tqdm import tqdm
@@ -10,6 +10,8 @@ import tensorflow as tf
 import json
 import xml.etree.ElementTree as ET
 from models.decoder import decode
+from models.backbone.CSPdarknet import Focus, SiLU
+
 import os
 
 class HiddenPrints:
@@ -266,37 +268,54 @@ def evaluate_all(anno_json, pred_json):
 
 if __name__ == '__main__':
     import os
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     from generators.dataset_custom import get_polyp_test_generator
     from config.polyp_hparams import hparams
     import tensorflow_addons as tfa
     ## Eval Segmentations dataset
+    from models.model import Model
+    input_shape = (hparams['input_size'], hparams['input_size'], 3)
+    model = Model(hparams['backbone'], hparams['neck'], hparams['head'],
+             input_shape, hparams['num_classes'], hparams['yolox_phi'], hparams['weight_decay']).build()
     ##Eval PolypsSet
     test_gen = get_polyp_test_generator(hparams)
-    model_dir = 'trained_models/20221001'
-    best_weights = 'weights_13_0.7588.h5'
+    model_dir = 'trained_models/20221012'
+    best_weights = 'weights_60_0.8648.h5'
     anno_json = os.path.join(model_dir, 'test_annotations.json')
     pred_json = os.path.join(model_dir, 'test_predictions.json')
 
-    NAME2IDX = {'adenomatous':0, 'hyperplastic':1}
-    with open(os.path.join(model_dir, 'model.json'), 'r') as f:
-        model = tf.keras.models.model_from_json(f.read(),
-                   custom_objects={'Addons>AdaptiveAveragePooling2D':tfa.layers.AdaptiveAveragePooling2D})
+    NAME2IDX = {'adenomatous':0, 'hyperplastic':0}
+#     with open(os.path.join(model_dir, 'model.json'), 'r') as f:
+#         model = tf.keras.models.model_from_json(f.read(),
+#                    custom_objects={'Addons>AdaptiveAveragePooling2D':tfa.layers.AdaptiveAveragePooling2D,
+#                        'Focus':Focus, 'SiLU':SiLU})
     weights_path = os.path.join(model_dir, best_weights)
     model.load_weights(weights_path)
+   
+    #model.summary()
+    #assert False
     generate_coco_format_labels(test_gen, anno_json)
     generate_coco_format_predict(test_gen, model, pred_json, score_threshold=0.01)
     stats = evaluate_all(anno_json, pred_json)
     stats = np.array(stats)
     print('-'*5 + ' Test with model %s result '%weights_path + '-'*5)
-    print('val_mAP@50    | ',end='')
+    print('mAP@50    | ',end='')
     for i in range(test_gen.num_classes):
         print('Class %d: %8.3f | '%(i, stats[i][1]),end='')
     print('\n')
-    print('val_mAP@50:95 | ',end='')
+    print('mAP@50:95 | ',end='')
     for i in range(test_gen.num_classes):
         print('Class %d: %8.3f | '%(i, stats[i][0]),end='')
     print('\n')
     
-    
+    ## Write result to files:
+    with open(os.path.join(model_dir, 'test_result.txt'), 'w+') as f:
+        f.write('-'*5 + ' Test with model %s result \n'%weights_path + '-'*5)
+        f.write('mAP@50    | ')
+        for i in range(test_gen.num_classes):
+            f.write('Class %d: %8.3f | '%(i, stats[i][1]))
+        f.write('\n')
+        f.write('mAP@50:95 | ')
+        for i in range(test_gen.num_classes):
+            f.write('Class %d: %8.3f | '%(i, stats[i][0]))
     

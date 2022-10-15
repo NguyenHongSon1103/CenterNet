@@ -13,8 +13,9 @@ class DatasetVOCFormat(Generator):
     def __init__(self, data, hparams, mode='train'):
         super(DatasetVOCFormat, self).__init__(data, hparams, mode)
         self.names = hparams['names']
-        self.name2idx = {name:i for i, name in enumerate(self.names)}
-        
+        #self.name2idx = {name:i for i, name in enumerate(self.names)}
+        self.name2idx = hparams['name2idx']
+
     def get_group(self, batch):
         group_images, group_boxes, group_ids = [], [], []
         for b in batch:
@@ -46,7 +47,7 @@ class DatasetVOCFormat(Generator):
 
     
 def get_dummy_generator(hparams):
-    root = '/data2/sonnh/E2EObjectDetection/YoloCenter/dummy_data'
+    root = '/data/sonnh8/E2EObjectDetection/YoloCenter/dummy_data'
     train_path = os.path.join(root, 'train')
     val_path = os.path.join(root, 'val')
     def get_data(path):
@@ -112,7 +113,7 @@ def get_dummy_generator(hparams):
 #     return train_gen, val_gen
 
 def get_polyp_generator(hparams):
-    root = '/data2/sonnh/E2EObjectDetection/PolypsSet_origin'
+    root = '/data/sonnh8/Polyps/PolypsSet_origin'
     train_path = os.path.join(root, 'train2019')
     val_path = os.path.join(root, 'val2019')
     
@@ -161,7 +162,7 @@ def get_polyp_generator(hparams):
     return train_gen, val_gen
 
 def get_polyp_test_generator(hparams):
-    root = '/data2/sonnh/E2EObjectDetection/PolypsSet_origin'
+    root = '/data/sonnh8/Polyps/PolypsSet_origin'
     test_path = os.path.join(root, 'test2019')
     test_data = []
 

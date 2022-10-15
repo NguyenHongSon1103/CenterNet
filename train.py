@@ -185,7 +185,10 @@ for epoch in range(resume_epoch, hparams['epochs']+1):
         for i in range(val_gen.num_classes):
             tf.summary.scalar('val_mAP@50_class_%d'%i, stats[i][1], step=epoch)
             tf.summary.scalar('val_mAP@50:95_class_%d'%i, stats[i][0], step=epoch)
-        val_mAP50_all = np.mean(stats[:, 1])
+        if val_gen.num_classes == 1:
+            val_mAP50_all = stats[i][1]
+        else:
+            val_mAP50_all = np.mean(stats[:, 1])
         tf.summary.scalar('val_mAP@50_all', val_mAP50_all, step=epoch)
     if val_mAP50_all > best_mAP:
         model_dir = os.path.join(save_model_dir, 'weights_%d_%.4f.h5'%(epoch, val_mAP50_all))

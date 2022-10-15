@@ -1,17 +1,20 @@
 hparams = dict(
-    num_classes = 2,
-    names = ["adenomatous", "hyperplastic"],
+    num_classes = 1,
+    names = ['polyps'],
+    name2idx = {"adenomatous":0, "hyperplastic":0},
+    #names = ["adenomatous", "hyperplastic"],
     #----------------------- 
     # Model architecture
     #-----------------------
-    backbone = 'resnet101',
-    neck = 'fpn_asf',
-    head = 'centernet',
+    backbone = 'cspdarknet',
+    neck = '',
+    #head = 'centernet',
+    head = 'ihead',
     #-----------------------
     # Only config for cspdarknet backbone
     # One of ['tiny', 's', 'm', 'l', 'x']
     #-----------------------
-    yolox_phi = 'm',   
+    yolox_phi = 's',   
     weight_decay = 5e-4,
     #-----------------------
     # Other configs
@@ -19,14 +22,14 @@ hparams = dict(
     input_size = 512,
     max_objects = 100,
     score_threshold = 0.2,
-    model_dir = 'trained_models/20221005',
-    batch_size=3, 
+    model_dir = 'trained_models/20221012',
+    batch_size=8, 
     epochs = 100,
     resume = False,
     pretrained_weights = '',
     optimizer = dict(
         type = 'adam',
-        base_lr = 5e-4,
+        base_lr = 1e-3,
         end_lr = 1e-5,
         warmup_lr = 2e-5,
         warmup_steps = 10000
